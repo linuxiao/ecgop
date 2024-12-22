@@ -148,8 +148,8 @@ import * as echarts from 'echarts'
 import {
   Plus,
   Search,
-  Monitor,
-  View,
+  Document,
+  Setting,
   Refresh,
   Warning
 } from '@element-plus/icons-vue'
@@ -160,10 +160,10 @@ const timeRange = ref('week')
 
 // 快捷工具
 const quickTools = [
-  { name: '一键巡检', icon: 'Monitor', action: 'inspection' },
-  { name: '心电图排查', icon: 'View', action: 'ecgScreening' },
   { name: '新建检查', icon: 'Plus', action: 'newExam' },
-  { name: '查询记录', icon: 'Search', action: 'searchRecord' }
+  { name: '查询记录', icon: 'Search', action: 'searchRecord' },
+  { name: '检查报告', icon: 'Document', action: 'viewReport' },
+  { name: '系统设置', icon: 'Setting', action: 'systemSettings' }
 ]
 
 // 统计数据
@@ -213,17 +213,17 @@ const recentAlerts = ref([
 // 快捷操作处理
 const handleQuickAction = (action) => {
   switch (action) {
-    case 'inspection':
-      router.push('/operation/inspection')
-      break
-    case 'ecgScreening':
-      router.push('/ecg/analysis')
-      break
     case 'newExam':
       router.push('/patients/new')
       break
     case 'searchRecord':
       router.push('/patients/records')
+      break
+    case 'viewReport':
+      router.push('/patients/reports')
+      break
+    case 'systemSettings':
+      router.push('/settings')
       break
   }
 }
@@ -386,13 +386,10 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 20px;
-  border-bottom: 1px solid #EBEEF5;
 }
 
 .chart-container {
-  height: 400px;
-  padding: 20px;
+  height: 350px;
 }
 
 /* 告警列表样式 */
@@ -400,14 +397,11 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 20px;
-  border-bottom: 1px solid #EBEEF5;
 }
 
 .alert-list {
-  height: 400px;
+  max-height: 350px;
   overflow-y: auto;
-  padding: 0 20px;
 }
 
 .alert-item {
@@ -435,10 +429,5 @@ onMounted(() => {
 .alert-time {
   font-size: 12px;
   color: #909399;
-}
-
-/* 卡片样式统一 */
-.chart-card, .alert-card {
-  height: 100%;
 }
 </style> 
