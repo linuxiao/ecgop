@@ -26,6 +26,55 @@
       </el-descriptions>
     </el-card>
 
+    <!-- 判读医院 -->
+    <el-card class="detail-card" shadow="never">
+      <template #header>
+        <div class="card-header">
+          <span>判读医院</span>
+          <el-button type="primary" @click="handleAddDiagnosisHospital">
+            <el-icon><Plus /></el-icon>
+            添加判读医院
+          </el-button>
+        </div>
+      </template>
+
+      <el-table :data="diagnosisHospitals" style="width: 100%" border>
+        <el-table-column prop="name" label="医院名称" min-width="200">
+          <template #default="{ row }">
+            <el-link type="primary" @click="handleViewHospital(row)">{{ row.name }}</el-link>
+          </template>
+        </el-table-column>
+        <el-table-column prop="level" label="医院等级" width="120" />
+        <el-table-column prop="status" label="状态" width="100" align="center">
+          <template #default="{ row }">
+            <el-tag :type="row.status === 'online' ? 'success' : 'danger'">
+              {{ row.status === 'online' ? '在线' : '离线' }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="diagnosisCount" label="判读数量" width="100" align="center" />
+        <el-table-column prop="avgResponseTime" label="平均响应时间" width="120" align="center">
+          <template #default="{ row }">
+            {{ row.avgResponseTime }}分钟
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="150" fixed="right">
+          <template #default="{ row }">
+            <el-button link type="primary" @click="handleViewDiagnosisStats(row)">
+              判读统计
+            </el-button>
+            <el-button 
+              link 
+              type="danger" 
+              @click="handleRemoveDiagnosisHospital(row)"
+            >
+              移除
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-card>
+
     <!-- 设备信息 -->
     <el-card class="detail-card" shadow="never">
       <template #header>
@@ -154,6 +203,59 @@
         </span>
       </template>
     </el-dialog>
+
+    <!-- 添加判读医院对话框 -->
+    <el-dialog
+      v-model="diagnosisHospitalDialogVisible"
+      title="添加判读医院"
+      width="600px"
+    >
+      <el-form
+        ref="diagnosisHospitalFormRef"
+        :model="diagnosisHospitalForm"
+        :rules="diagnosisHospitalRules"
+        label-width="100px"
+      >
+        <el-form-item label="医院名称" prop="hospitalId">
+          <el-select
+            v-model="diagnosisHospitalForm.hospitalId"
+            placeholder="请选择医院"
+            filterable
+            remote
+            :remote-method="searchHospitals"
+            :loading="hospitalSearchLoading"
+          >
+            <el-option
+              v-for="item in hospitalOptions"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            >
+              <span>{{ item.name }}</span>
+              <span style="float: right; color: #8492a6; font-size: 13px">
+                {{ item.level }}
+              </span>
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="备注" prop="remark">
+          <el-input
+            v-model="diagnosisHospitalForm.remark"
+            type="textarea"
+            rows="3"
+            placeholder="请输入备注信息"
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="diagnosisHospitalDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="handleDiagnosisHospitalSubmit">
+            确认
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -237,6 +339,43 @@ const deviceRules = {
   ],
   model: [
     { required: true, message: '请输入设备型号', trigger: 'blur' }
+  ]
+}
+
+// 判读医院列表
+const diagnosisHospitals = ref([
+  {
+    id: 1,
+    name: '第三人民医院',
+    level: '三级甲等',
+    status: 'online',
+    diagnosisCount: 1560,
+    avgResponseTime: 15
+  },
+  {
+    id: 2,
+    name: '第四人民医院',
+    level: '三级乙等',
+    status: 'online',
+    diagnosisCount: 980,
+    avgResponseTime: 20
+  }
+])
+
+// 判读医院对话框
+const diagnosisHospitalDialogVisible = ref(false)
+const diagnosisHospitalFormRef = ref(null)
+const diagnosisHospitalForm = reactive({
+  hospitalId: '',
+  remark: ''
+})
+const hospitalSearchLoading = ref(false)
+const hospitalOptions = ref([])
+
+// 判读医院表单校验规则
+const diagnosisHospitalRules = {
+  hospitalId: [
+    { required: true, message: '请选择医院', trigger: 'change' }
   ]
 }
 
@@ -428,6 +567,73 @@ const initCharts = () => {
     onlineChart.resize()
     alertChart.resize()
   })
+}
+
+// 搜索医院
+const searchHospitals = async (query) => {
+  if (query) {
+    hospitalSearchLoading.value = true
+    // TODO: 实现医院搜索逻辑
+    // 模拟异步搜索
+    setTimeout(() => {
+      hospitalOptions.value = [
+        { id: 3, name: '第三人民医院', level: '三级甲等' },
+        { id: 4, name: '第四人民医院', level: '三级乙等' },
+        { id: 5, name: '第五人民医院', level: '二级甲等' }
+      ]
+      hospitalSearchLoading.value = false
+    }, 500)
+  } else {
+    hospitalOptions.value = []
+  }
+}
+
+// 添加判读医院
+const handleAddDiagnosisHospital = () => {
+  diagnosisHospitalDialogVisible.value = true
+  diagnosisHospitalForm.hospitalId = ''
+  diagnosisHospitalForm.remark = ''
+}
+
+// 查看医院详情
+const handleViewHospital = (row) => {
+  router.push(`/hospitals/${row.id}`)
+}
+
+// 查看判读统计
+const handleViewDiagnosisStats = (row) => {
+  // TODO: 实现查看判读统计的逻辑
+  ElMessage.info('查看判读统计功能开发中')
+}
+
+// 移除判读医院
+const handleRemoveDiagnosisHospital = (row) => {
+  ElMessageBox.confirm(
+    '确定要移除该判读医院吗？',
+    '警告',
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    }
+  ).then(() => {
+    // TODO: 实现移除判读医院的逻辑
+    ElMessage.success('移除成功')
+  }).catch(() => {})
+}
+
+// 提交判读医院表单
+const handleDiagnosisHospitalSubmit = async () => {
+  if (!diagnosisHospitalFormRef.value) return
+  
+  try {
+    await diagnosisHospitalFormRef.value.validate()
+    // TODO: 实现提交逻辑
+    ElMessage.success('添加成功')
+    diagnosisHospitalDialogVisible.value = false
+  } catch (error) {
+    console.error('Validation failed:', error)
+  }
 }
 
 onMounted(() => {
