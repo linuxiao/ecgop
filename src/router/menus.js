@@ -324,9 +324,40 @@ const settings = {
   ]
 }
 
+// 医院管理
+const hospitals = {
+  path: 'hospitals',
+  name: 'Hospitals',
+  meta: { 
+    title: '医院管理',
+    icon: 'House'
+  },
+  children: [
+    {
+      path: 'list',
+      name: 'HospitalList',
+      component: () => import('@/views/hospitals/List.vue'),
+      meta: { 
+        title: '医院列表',
+        icon: 'List'
+      }
+    },
+    {
+      path: ':id',
+      name: 'HospitalDetail',
+      component: () => import('@/views/hospitals/Detail.vue'),
+      meta: {
+        title: '医院详情',
+        hidden: true
+      }
+    }
+  ]
+}
+
 // 导出所有路由
 export const mainRoutes = [
   dashboard,
+  hospitals,
   devices,
   patients,
   visits,
@@ -342,6 +373,7 @@ export const menuItems = [
   patients,
   operation,
   his,
+  hospitals,
   system
 ]
  
