@@ -48,10 +48,11 @@
         <div class="avatar-container">
           <el-avatar 
             :size="32"
+            :src="userStore.userInfo.avatar"
             :icon="UserFilled"
             class="avatar"
           />
-          <span class="name">{{ userStore.userInfo?.name || '未登录' }}</span>
+          <span class="name">{{ userStore.userInfo.realName || userStore.userInfo.username || '未登录' }}</span>
           <el-icon><CaretBottom /></el-icon>
         </div>
         <template #dropdown>
@@ -100,12 +101,14 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { Fold, CaretBottom, Switch, UserFilled } from '@element-plus/icons-vue'
 import { useAppStore } from '@/store/modules/app'
 import { useUserStore } from '@/store/modules/user'
 import Breadcrumb from './Breadcrumb.vue'
 import { ElMessage } from 'element-plus'
 
+const router = useRouter()
 const appStore = useAppStore()
 const userStore = useUserStore()
 
@@ -113,6 +116,7 @@ const sidebarOpened = computed(() => appStore.sidebar.opened)
 
 const loading = ref(true)
 const hospitals = ref([])
+const hospitalDialogVisible = ref(false)
 
 // 初始化医院数据
 const initHospitals = () => {
@@ -160,7 +164,7 @@ const toggleSidebar = () => {
 const handleCommand = (command) => {
   switch (command) {
     case 'profile':
-      // TODO: 跳转到个人信息页面
+      router.push('/settings/profile')
       break
     case 'logout':
       userStore.logout()
@@ -173,8 +177,6 @@ const currentHospital = computed({
   get: () => appStore.currentHospital,
   set: (val) => appStore.changeHospital(val)
 })
-
-const hospitalDialogVisible = ref(false)
 
 // 处理医院切换
 const handleHospitalChange = (hospitalId) => {
@@ -312,5 +314,19 @@ const selectHospital = (hospital) => {
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.hamburger {
+  cursor: pointer;
+  padding: 0 10px;
+}
+
+.hamburger .el-icon {
+  font-size: 20px;
+  transition: transform 0.3s;
+}
+
+.hamburger .el-icon.is-active {
+  transform: rotate(180deg);
 }
 </style> 

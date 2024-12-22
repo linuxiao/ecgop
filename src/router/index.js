@@ -42,23 +42,18 @@ router.beforeEach(async (to, from, next) => {
   if (token) {
     if (to.path === '/login') {
       // 已登录且要跳转的页面是登录页
-      next({ path: '/' })
+      next({ path: '/dashboard' })
       NProgress.done()
     } else {
-      // 判断是否已获取用户信息
-      if (userStore.roles.length === 0) {
-        try {
-          // 获取用户信息
-          await userStore.getUserInfo()
-          next({ ...to, replace: true })
-        } catch (error) {
-          // 获取用户信息失败，清除token并跳转登录页
-          localStorage.removeItem('token')
-          next(`/login?redirect=${to.path}`)
-          NProgress.done()
-        }
-      } else {
+      try {
+        // 获取用户信息
+        await userStore.getUserInfo()
         next()
+      } catch (error) {
+        // 获取用户信息失败，清除token并跳转登录页
+        localStorage.removeItem('token')
+        next(`/login?redirect=${to.path}`)
+        NProgress.done()
       }
     }
   } else {

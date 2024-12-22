@@ -30,7 +30,19 @@ const mainRoute = {
   path: '/',
   component: MainLayout,
   redirect: '/dashboard',
-  children: mainRoutes
+  children: [
+    {
+      path: 'dashboard',
+      name: 'Dashboard',
+      component: () => import('@/views/DashboardNew.vue'),
+      meta: { 
+        title: '仪表盘',
+        icon: 'Odometer',
+        requiresAuth: true 
+      }
+    },
+    ...mainRoutes
+  ]
 }
 
 // 错误处理路由 - 必须放在最后

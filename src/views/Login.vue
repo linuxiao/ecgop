@@ -28,6 +28,7 @@
               :prefix-icon="Lock"
               size="large"
               show-password
+              @keyup.enter="handleLogin"
             />
           </el-form-item>
           <el-form-item>
@@ -36,8 +37,9 @@
               @click="handleLogin" 
               class="login-button"
               size="large"
+              :loading="loading"
             >
-              登录
+              {{ loading ? '登录中...' : '登录' }}
             </el-button>
           </el-form-item>
         </el-form>
@@ -48,12 +50,16 @@
 
 <script setup>
 import { ref, reactive } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
+import { useUserStore } from '@/store/modules/user'
 import { User, Lock } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 
 const router = useRouter()
+const route = useRoute()
+const userStore = useUserStore()
 const loginFormRef = ref(null)
+const loading = ref(false)
 
 const loginForm = reactive({
   username: '',
@@ -71,17 +77,28 @@ const rules = {
   ]
 }
 
-const handleLogin = () => {
-  loginFormRef.value.validate((valid) => {
-    if (valid) {
-      // 这里添加实际的登录逻辑
-      localStorage.setItem('token', 'dummy-token')
+const handleLogin = async () => {
+  if (loading.value) return
+  
+  try {
+    await loginFormRef.value.validate()
+    
+    loading.value = true
+    const success = await userStore.login(loginForm.username, loginForm.password)
+    
+    if (success) {
       ElMessage.success('登录成功')
-      router.push('/dashboard')
+      const redirect = route.query.redirect || '/dashboard'
+      router.push(redirect)
     } else {
-      ElMessage.error('请填写正确的登录信息')
+      ElMessage.error('登录失败，请检查用户名和密码')
     }
-  })
+  } catch (error) {
+    console.error('Login error:', error)
+    ElMessage.error('登录失败，请重试')
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 

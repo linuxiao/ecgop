@@ -2,7 +2,7 @@
 const dashboard = {
   path: 'dashboard',
   name: 'Dashboard',
-  component: () => import('@/views/Dashboard.vue'),
+  component: () => import('@/views/DashboardNew.vue'),
   meta: { 
     title: '仪表盘', 
     icon: 'Odometer',
@@ -294,6 +294,47 @@ const system = {
   ]
 }
 
+// 系统设置
+const settings = {
+  path: 'settings',
+  name: 'Settings',
+  meta: { 
+    title: '系统设置',
+    icon: 'Setting'
+  },
+  children: [
+    {
+      path: 'profile',
+      name: 'Profile',
+      component: () => import('@/views/settings/Profile.vue'),
+      meta: { 
+        title: '个人信息',
+        icon: 'User'
+      }
+    },
+    {
+      path: 'users',
+      name: 'Users',
+      component: () => import('@/views/settings/Users.vue'),
+      meta: { 
+        title: '用户管理',
+        icon: 'UserFilled'
+      }
+    }
+  ]
+}
+
+// 导出所有路由
+export const mainRoutes = [
+  dashboard,
+  devices,
+  patients,
+  visits,
+  operation,
+  his,
+  settings
+]
+
 // 导出所有菜单项
 export const menuItems = [
   dashboard,
@@ -303,7 +344,4 @@ export const menuItems = [
   his,
   system
 ]
-
-// 导出主路由配置
-export const mainRoutes = menuItems
  
